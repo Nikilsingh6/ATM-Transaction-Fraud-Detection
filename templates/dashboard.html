@@ -1,179 +1,181 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Dashboard | ATM Fraud Detection{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Fraud Detection Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-{% block content %}
-<div class="dashboard-page">
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h2>Fraud Shield</h2>
-            <p>ATM Detection System</p>
-        </div>
+<body class="dashboard-v2-body">
+    <div class="dashboard-bg-overlay" aria-hidden="true"></div>
 
-        <div class="profile-card">
-            <h3>{{ user["name"] }}</h3>
-            <span>{{ user["email"] }}</span>
-        </div>
+    <div class="dashboard-shell">
+        <header class="dashboard-v2-header glass-panel">
+            <div class="header-brand-block">
+                <p class="eyebrow">Fraud Monitoring Workspace</p>
+                <h1>ATM Fraud Detection Dashboard</h1>
+                <p class="header-welcome">Welcome back, {{ user["name"] }}</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('logout') }}" class="logout-btn-v2">Logout</a>
+            </div>
+        </header>
 
-        <nav class="sidebar-nav">
-            <a href="{{ url_for('dashboard') }}" class="active">
-                <i class="fa-solid fa-gauge"></i> Dashboard
-            </a>
-            <a href="{{ url_for('logout') }}">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <div class="page-header">
-            <h1>ATM Transaction Fraud Detection Dashboard</h1>
-            <p>Analyze transaction details and predict whether a transaction is fraud or not fraud.</p>
-        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <section class="flash-stack">
+            {% for category, message in messages %}
+            <div class="flash-v2 {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </section>
+        {% endif %}
+        {% endwith %}
 
         {% if model_missing %}
-        <div class="alert-box">
-            Model files not found. Run <strong>python train_model.py</strong> first.
-        </div>
+        <section class="model-warning glass-panel">
+            <h3>Model Files Not Found</h3>
+            <p>Prediction is temporarily unavailable because model artifacts are missing. Check model setup and refresh the dashboard.</p>
+        </section>
         {% endif %}
 
-        <div class="dashboard-grid">
-            <section class="card">
-                <h2>Enter Transaction Details</h2>
+        <main class="dashboard-main-column">
+            <section class="glass-panel transaction-panel form-panel-wide">
+                <div class="panel-head">
+                    <h2>Transaction Form</h2>
+                    <p>Enter transaction details to run fraud prediction.</p>
+                </div>
 
-                <form method="POST" class="dashboard-form">
-                    <div class="form-grid">
-                        <div class="form-group">
+                <form method="POST">
+                    <div class="dashboard-form-grid">
+
+                        <div class="dashboard-field-group">
                             <label>Transaction Amount</label>
-                            <input type="number" step="any" name="transaction_amount" placeholder="300" required>
+                            <input type="number" name="transaction_amount" placeholder="e.g. 2500" required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="dashboard-field-group">
                             <label>Transaction Type</label>
                             <select name="transaction_type" required>
                                 <option value="">Select</option>
-                                {% for item in transaction_types %}
-                                <option value="{{ item }}">{{ item }}</option>
+                                {% for i in transaction_types %}
+                                <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Account Balance</label>
-                            <input type="number" step="any" name="account_balance" placeholder="40000" required>
+                        <div class="dashboard-field-group">
+                            <label>Account Balance (Demo)</label>
+                            <input type="number" name="account_balance" placeholder="e.g. 15000" required>
                         </div>
 
-                        <div class="form-group">
-                            <label>Device Type</label>
-                            <select name="device_type" required>
-                                <option value="">Select</option>
-                                {% for item in device_types %}
-                                <option value="{{ item }}">{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="form-group">
+                        <div class="dashboard-field-group">
                             <label>Location</label>
                             <select name="location" required>
                                 <option value="">Select</option>
-                                {% for item in locations %}
-                                <option value="{{ item }}">{{ item }}</option>
+                                {% for i in locations %}
+                                <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Previous Fraudulent Activity</label>
-                            <select name="previous_fraudulent_activity" required>
-                                <option value="">Select</option>
+                        <div class="dashboard-field-group">
+                            <label>Previous Fraud</label>
+                            <select name="previous_fraudulent_activity">
                                 <option value="0">No</option>
                                 <option value="1">Yes</option>
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Daily Transaction Count</label>
-                            <input type="number" name="daily_transaction_count" placeholder="1" required>
+                        <div class="dashboard-field-group">
+                            <label>Daily Count</label>
+                            <input type="number" name="daily_transaction_count" placeholder="e.g. 3">
                         </div>
 
-                        <div class="form-group">
+                        <div class="dashboard-field-group">
                             <label>Card Type</label>
-                            <select name="card_type" required>
-                                <option value="">Select</option>
-                                {% for item in card_types %}
-                                <option value="{{ item }}">{{ item }}</option>
+                            <select name="card_type">
+                                {% for i in card_types %}
+                                <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Transaction Distance</label>
-                            <input type="number" step="any" name="transaction_distance" placeholder="1" required>
+                        <div class="dashboard-field-group">
+                            <label>Distance</label>
+                            <input type="number" name="transaction_distance" step="0.1" placeholder="e.g. 12.5">
                         </div>
 
-                        <div class="form-group">
-                            <label>Authentication Method</label>
-                            <select name="authentication_method" required>
-                                <option value="">Select</option>
-                                {% for item in auth_methods %}
-                                <option value="{{ item }}">{{ item }}</option>
+                        <div class="dashboard-field-group">
+                            <label>Auth Method</label>
+                            <select name="authentication_method">
+                                {% for i in auth_methods %}
+                                <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Risk Score</label>
-                            <input type="number" step="0.01" min="0" max="1" name="risk_score" placeholder="0.10"
-                                required>
+                        <div class="dashboard-field-group">
+                            <label>Risk Score (0 - {{ risk_score_max }})</label>
+                            <input type="number" step="0.01" name="risk_score"
+                                placeholder="e.g. 0.42" required>
                         </div>
 
-                        <div class="form-group">
-                            <label>Is Weekend</label>
-                            <select name="is_weekend" required>
-                                <option value="">Select</option>
-                                <option value="0">No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
                     </div>
 
-                    <button type="submit" class="btn-primary">Detect Fraud</button>
+                    <button class="predict-btn" type="submit">Predict Transaction Risk</button>
                 </form>
-            </section>
 
-            <section class="card">
-                <h2>Recent Prediction History</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>Type</th>
-                                <th>Prediction</th>
-                                <th>Probability</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in history %}
-                            <tr>
-                                <td>{{ row["transaction_amount"] }}</td>
-                                <td>{{ row["transaction_type"] }}</td>
-                                <td>{{ row["prediction_label"] }}</td>
-                                <td>{{ row["fraud_probability"] }}%</td>
-                                <td>{{ row["created_at"] }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="empty-state">No prediction history found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% if prediction %}
+                <div class="result-v2 {% if prediction == 'Fraud' %}fraud{% else %}safe{% endif %}">
+                    <h3>{{ prediction }}</h3>
+                    <p>Fraud Probability: {{ probability }} %</p>
                 </div>
+                {% endif %}
             </section>
-        </div>
-    </main>
-</div>
-{% endblock %}
+        </main>
+
+        <section class="glass-panel history-panel history-panel-large">
+            <div class="panel-head">
+                <h2>Recent Transaction History</h2>
+                <p>Latest 10 predictions for your account.</p>
+            </div>
+
+            {% if history %}
+            <div class="history-table-wrap">
+                <table class="history-table-v2">
+                    <thead>
+                        <tr>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in history %}
+                        <tr>
+                            <td>{{ h["transaction_amount"] }}</td>
+                            <td>{{ h["transaction_type"] }}</td>
+                            <td>{{ h["location"] }}</td>
+                            <td>
+                                {% if h["prediction_label"] == "Fraud" %}
+                                <span class="status-badge fraud">Fraud</span>
+                                {% else %}
+                                <span class="status-badge safe">Safe</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-history">No history yet. Submitted predictions will appear here.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+
+</html>
