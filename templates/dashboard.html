@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATM Fraud Detection Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
@@ -14,7 +17,6 @@
     <div class="dashboard-shell">
         <header class="dashboard-v2-header glass-panel">
             <div class="header-brand-block">
-                <p class="eyebrow">Fraud Monitoring Workspace</p>
                 <h1>ATM Fraud Detection Dashboard</h1>
                 <p class="header-welcome">Welcome back, {{ user["name"] }}</p>
             </div>
@@ -33,6 +35,29 @@
         {% endif %}
         {% endwith %}
 
+        <section class="stats-card-grid">
+            <article class="glass-panel stat-surface">
+                <span>Total checks</span>
+                <strong>{{ dashboard_stats.total_checks }}</strong>
+            </article>
+            <article class="glass-panel stat-surface">
+                <span>Fraud flags</span>
+                <strong>{{ dashboard_stats.fraud_flags }}</strong>
+            </article>
+            <article class="glass-panel stat-surface">
+                <span>Suspicious</span>
+                <strong>{{ dashboard_stats.suspicious_flags }}</strong>
+            </article>
+            <article class="glass-panel stat-surface">
+                <span>Review</span>
+                <strong>{{ dashboard_stats.review_flags }}</strong>
+            </article>
+            <article class="glass-panel stat-surface">
+                <span>Safe checks</span>
+                <strong>{{ dashboard_stats.safe_checks }}</strong>
+            </article>
+        </section>
+
         {% if model_missing %}
         <section class="model-warning glass-panel">
             <h3>Model Files Not Found</h3>
@@ -40,131 +65,119 @@
         </section>
         {% endif %}
 
-        <main class="dashboard-main-column">
+        <main class="dashboard-content-grid dashboard-content-grid-single">
             <section class="glass-panel transaction-panel form-panel-wide">
                 <div class="panel-head">
-                    <h2>Transaction Form</h2>
-                    <p>Enter transaction details to run fraud prediction.</p>
+                    <p class="eyebrow">Prediction form</p>
+                    <h2>Transaction input</h2>
                 </div>
 
-                <form method="POST">
+                <form method="POST" class="transaction-form">
                     <div class="dashboard-form-grid">
 
                         <div class="dashboard-field-group">
-                            <label>Transaction Amount</label>
-                            <input type="number" name="transaction_amount" placeholder="e.g. 2500" required>
+                            <label for="transaction_amount">Transaction Amount</label>
+                            <input id="transaction_amount" type="number" name="transaction_amount" placeholder="e.g. 2500" value="{{ form_values.transaction_amount }}" required>
                         </div>
 
                         <div class="dashboard-field-group">
-                            <label>Transaction Type</label>
-                            <select name="transaction_type" required>
+                            <label for="transaction_type">Transaction Type</label>
+                            <select id="transaction_type" name="transaction_type" required>
                                 <option value="">Select</option>
                                 {% for i in transaction_types %}
-                                <option value="{{ i }}">{{ i }}</option>
+                                <option value="{{ i }}" {% if form_values.transaction_type == i %}selected{% endif %}>{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
                         <div class="dashboard-field-group">
-                            <label>Account Balance (Demo)</label>
-                            <input type="number" name="account_balance" placeholder="e.g. 15000" required>
+                            <label for="failed_pin_attempts">Failed PIN Attempts</label>
+                            <input id="failed_pin_attempts" type="number" name="failed_pin_attempts" min="0" max="5" placeholder="e.g. 2" value="{{ form_values.failed_pin_attempts }}" required>
                         </div>
 
                         <div class="dashboard-field-group">
-                            <label>Location</label>
-                            <select name="location" required>
-                                <option value="">Select</option>
-                                {% for i in locations %}
-                                <option value="{{ i }}">{{ i }}</option>
+                            <label for="transactions_last_1h">Transactions in Last 1 Hour</label>
+                            <input id="transactions_last_1h" type="number" name="transactions_last_1h" min="0" placeholder="e.g. 3" value="{{ form_values.transactions_last_1h }}" required>
+                        </div>
+
+                        <div class="dashboard-field-group">
+                            <label for="atm_location_profile">ATM Location Profile</label>
+                            <select id="atm_location_profile" name="atm_location_profile" required>
+                                {% for i in atm_location_profiles %}
+                                <option value="{{ i }}" {% if form_values.atm_location_profile == i %}selected{% endif %}>{{ i }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="dashboard-field-group">
-                            <label>Previous Fraud</label>
-                            <select name="previous_fraudulent_activity">
-                                <option value="0">No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-
-                        <div class="dashboard-field-group">
-                            <label>Daily Count</label>
-                            <input type="number" name="daily_transaction_count" placeholder="e.g. 3">
-                        </div>
-
-                        <div class="dashboard-field-group">
-                            <label>Card Type</label>
-                            <select name="card_type">
-                                {% for i in card_types %}
-                                <option value="{{ i }}">{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="dashboard-field-group">
-                            <label>Distance</label>
-                            <input type="number" name="transaction_distance" step="0.1" placeholder="e.g. 12.5">
-                        </div>
-
-                        <div class="dashboard-field-group">
-                            <label>Auth Method</label>
-                            <select name="authentication_method">
+                        <div class="dashboard-field-group dashboard-field-span">
+                            <label for="authentication_method">Authentication Method</label>
+                            <select id="authentication_method" name="authentication_method">
                                 {% for i in auth_methods %}
-                                <option value="{{ i }}">{{ i }}</option>
+                                <option value="{{ i }}" {% if form_values.authentication_method == i %}selected{% endif %}>{{ i }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
-
-                        <div class="dashboard-field-group">
-                            <label>Risk Score (0 - {{ risk_score_max }})</label>
-                            <input type="number" step="0.01" name="risk_score"
-                                placeholder="e.g. 0.42" required>
                         </div>
 
                     </div>
 
                     <button class="predict-btn" type="submit">Predict Transaction Risk</button>
                 </form>
-
-                {% if prediction %}
-                <div class="result-v2 {% if prediction == 'Fraud' %}fraud{% else %}safe{% endif %}">
-                    <h3>{{ prediction }}</h3>
-                    <p>Fraud Probability: {{ probability }} %</p>
-                </div>
-                {% endif %}
             </section>
         </main>
 
         <section class="glass-panel history-panel history-panel-large">
-            <div class="panel-head">
-                <h2>Recent Transaction History</h2>
-                <p>Latest 10 predictions for your account.</p>
+            <div class="panel-head panel-head-row">
+                <div>
+                    <p class="eyebrow">History</p>
+                    <h2>Recent Transaction History</h2>
+                    <p>Latest 10 predictions for your account.</p>
+                </div>
             </div>
 
-            {% if history %}
+            {% if recent_history %}
             <div class="history-table-wrap">
                 <table class="history-table-v2">
                     <thead>
                         <tr>
+                            <th>Created</th>
                             <th>Amount</th>
                             <th>Type</th>
-                            <th>Location</th>
+                            <th>Last 1H</th>
+                            <th>Risk Score</th>
+                            <th>Probability</th>
                             <th>Result</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for h in history %}
+                        {% for h in recent_history %}
                         <tr>
-                            <td>{{ h["transaction_amount"] }}</td>
-                            <td>{{ h["transaction_type"] }}</td>
-                            <td>{{ h["location"] }}</td>
-                            <td>
+                            <td data-label="Created">{{ h["created_at"] }}</td>
+                            <td data-label="Amount">{{ h["transaction_amount"] }}</td>
+                            <td data-label="Type">{{ h["transaction_type"] }}</td>
+                            <td data-label="Last 1H">{{ h["transactions_last_1h"] }}</td>
+                            <td data-label="Risk Score">{{ h["risk_score"] }}</td>
+                            <td data-label="Probability">{{ h["fraud_probability"] }}%</td>
+                            <td data-label="Result">
                                 {% if h["prediction_label"] == "Fraud" %}
                                 <span class="status-badge fraud">Fraud</span>
+                                {% elif h["prediction_label"] == "Suspicious" %}
+                                <span class="status-badge suspicious">Suspicious</span>
+                                {% elif h["prediction_label"] == "Review" %}
+                                <span class="status-badge review">Review</span>
                                 {% else %}
                                 <span class="status-badge safe">Safe</span>
                                 {% endif %}
+                            </td>
+                            <td data-label="Action">
+                                <form method="POST" action="{{ url_for('delete_prediction', prediction_id=h['id']) }}">
+                                    <button
+                                        type="submit"
+                                        class="history-delete-btn"
+                                        onclick="return confirm('Delete this transaction from history?');">
+                                        Delete
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}

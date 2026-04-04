@@ -5,122 +5,81 @@
     <meta charset="UTF-8">
     <title>Register | ATM Fraud Detection</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .card {
-            background: white;
-            padding: 35px;
-            border-radius: 16px;
-            width: 380px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #0f172a;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-
-        input:focus {
-            border-color: #2563eb;
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #16a34a;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #15803d;
-        }
-
-        .link {
-            text-align: center;
-            margin-top: 12px;
-        }
-
-        .link a {
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .flash {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .info {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="auth-page auth-theme">
+    <div class="auth-background" aria-hidden="true"></div>
 
-    <div class="card">
-        <h2>Register</h2>
+    <main class="auth-shell">
+        <section class="auth-hero-panel">
+            <p class="auth-kicker">Fraud Monitoring Workspace</p>
+            <h1>Build an operator account and start reviewing ATM transaction risk.</h1>
+            <p class="auth-copy">
+                Create a workspace login for transaction screening, trend review, and cleaner fraud analysis.
+            </p>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endwith %}
+            <div class="auth-feature-list">
+                <div class="auth-feature-card">
+                    <span class="feature-metric">Fast setup</span>
+                    <p>Register in one step and move directly into prediction and transaction monitoring.</p>
+                </div>
+                <div class="auth-feature-card">
+                    <span class="feature-metric">Useful output</span>
+                    <p>See fraud probability, generated risk score, and recent transaction history together.</p>
+                </div>
+                <div class="auth-feature-card">
+                    <span class="feature-metric">Clear layout</span>
+                    <p>The refreshed interface keeps forms, alerts, and insights easier to scan on desktop and mobile.</p>
+                </div>
+            </div>
+        </section>
 
-        <form method="POST">
-            <input type="text" name="name" placeholder="Full Name" required>
-            <input type="email" name="email" placeholder="Email Address" required>
-            <input type="password" name="password" placeholder="Password (min 6 characters)" required>
-            <button type="submit">Register</button>
-        </form>
+        <section class="auth-card-panel">
+            <div class="auth-card">
+                <p class="auth-card-label">Create account</p>
+                <h2>Register for access</h2>
+                <p class="auth-subtitle">Set up your operator profile to start using the ATM fraud dashboard.</p>
 
-        <div class="link">
-            Already have an account? <a href="{{ url_for('login') }}">Login</a>
-        </div>
-    </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="auth-flash-stack">
+                    {% for category, message in messages %}
+                    <div class="flash-v2 {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
 
+                <form method="POST" class="auth-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input id="name" type="text" name="name" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input id="email" type="email" name="email" placeholder="Enter your email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input id="password" type="password" name="password" placeholder="Minimum 6 characters" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary auth-submit-btn auth-submit-success">Register</button>
+                </form>
+
+                <p class="bottom-link">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}">Login</a>
+                </p>
+            </div>
+        </section>
+    </main>
 </body>
 
 </html>
